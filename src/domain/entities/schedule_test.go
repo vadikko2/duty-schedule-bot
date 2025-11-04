@@ -5,6 +5,58 @@ import (
 	"time"
 )
 
+// Проверяет сбор расписания через метод ConstructSchedule
+func TestConstructSchedulePositive(t *testing.T) {
+	fistDuty, _ := NewDuty(&Officer{}, 10)
+	secondDuty, _ := NewDuty(&Officer{}, 10)
+	ExceptedFirstDutyStart := time.Date(2025, 11, 4, 9, 0, 0, 0, time.UTC)
+	ExceptedLastDutyEnd := time.Date(2025, 11, 24, 9, 0, 0, 0, time.UTC)
+	elements := []ScheduleElement{
+		*NewScheduleElement(
+			nil,
+			ExceptedFirstDutyStart,
+			fistDuty,
+		),
+		*NewScheduleElement(
+			nil,
+			time.Date(2025, 11, 14, 9, 0, 0, 0, time.UTC),
+			secondDuty,
+		),
+	}
+
+	schedule, error := ConstructSchedule(&elements)
+
+	if schedule == nil {
+		t.Fatal("Schedule has been custructed with error:", error)
+	}
+	if error != nil {
+		t.Errorf("Schedule has been custructed with errur %v", error)
+	}
+	if (*schedule).DutyCount() != 2 {
+		t.Errorf("Excepted duty count is 2, but got %v", schedule.DutyCount())
+	}
+	if *schedule.firstDutyStart != ExceptedFirstDutyStart {
+		t.Errorf("Excepted ExceptedFirstDutyStart %v but got %v", ExceptedFirstDutyStart, *schedule.firstDutyStart)
+	}
+	if *schedule.lastDutyEnd != ExceptedLastDutyEnd {
+		t.Errorf("Excepted ExceptedLastDutyEnd %v but got %v", ExceptedLastDutyEnd, *schedule.lastDutyEnd)
+	}
+}
+
+// Проверяет сбор расписания через метод ConstructSchedule из пустого среза
+func TestConstructScheduleFromEmptySlicePositive(t *testing.T) {
+	emtySlice := []ScheduleElement{}
+	schedule, error := ConstructSchedule(&emtySlice)
+
+	if error != nil {
+		t.Errorf("Empty schedule has been cunstructed with error %v", error)
+	}
+	if schedule.elements != nil {
+		t.Errorf("Excepted elements is nil, but got %v", schedule.elements)
+	}
+
+}
+
 // Проверяем что дежурство добавляется в пустое расписание
 func TestAddFirstDutyPositive(t *testing.T) {
 	emptyDutySchedule := Schedule{}
@@ -21,16 +73,16 @@ func TestAddFirstDutyPositive(t *testing.T) {
 	if emptyDutySchedule.elements == nil {
 		t.Errorf("Schedule is empty after add new duty %v", emptyDutySchedule)
 	}
-	if emptyDutySchedule.firstStar == nil {
+	if emptyDutySchedule.firstDutyStart == nil {
 		t.Errorf("Schedule has no fromDateTime after add new duty %v", emptyDutySchedule)
 	}
-	if emptyDutySchedule.lastEnd == nil {
+	if emptyDutySchedule.lastDutyEnd == nil {
 		t.Errorf("Schedule has no fromDateTime after add new duty %v", emptyDutySchedule)
 	}
 	if emptyDutySchedule.elements.Len() != 1 {
 		t.Errorf("Schedule has to has 1 elements, but has %d", emptyDutySchedule.elements.Len())
 	}
-	if _, error := emptyDutySchedule.LastEnd(); error != nil {
+	if _, error := emptyDutySchedule.LastDutyEnd(); error != nil {
 		t.Errorf("Getting LastEnd ends with error %v", error)
 	}
 }
@@ -56,16 +108,16 @@ func TestAddNewDutyPositive(t *testing.T) {
 	if dutySchedule.elements == nil {
 		t.Errorf("Schedule is empty after add new duty %v", dutySchedule)
 	}
-	if dutySchedule.firstStar == nil {
+	if dutySchedule.firstDutyStart == nil {
 		t.Errorf("Schedule has no fromDateTime after add new duty %v", dutySchedule)
 	}
-	if dutySchedule.lastEnd == nil {
+	if dutySchedule.lastDutyEnd == nil {
 		t.Errorf("Schedule has no fromDateTime after add new duty %v", dutySchedule)
 	}
 	if dutySchedule.elements.Len() != 2 {
 		t.Errorf("Schedule has to has 2 elements, but has %d", dutySchedule.elements.Len())
 	}
-	if _, error := dutySchedule.LastEnd(); error != nil {
+	if _, error := dutySchedule.LastDutyEnd(); error != nil {
 		t.Errorf("Getting LastEnd ends with error %v", error)
 	}
 }

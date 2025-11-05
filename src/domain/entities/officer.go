@@ -77,7 +77,6 @@ func NewOfficerOrder(maxOfficerCount *int32) *OfficerOrder {
 }
 
 // Добавляет новый элемент в OfficerOrder
-// Добавляет новый элемент в OfficerOrder
 func (oo *OfficerOrder) AddNewOfficer(officer *Officer) error {
 	if oo.officerCount == oo.maxOfficerCount {
 		return errors.New("Officer count already has maximum value")

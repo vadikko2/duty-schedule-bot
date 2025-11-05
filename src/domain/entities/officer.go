@@ -3,7 +3,7 @@ package entities
 import "errors"
 
 // Дефолтное значение максимального числа дежурантов в очереди
-const DefaultMaxOfficerinOrderCount int32 = 10
+const DefaultMaxOfficerinOrderCount uint32 = 10
 
 // Дежурант
 type Officer struct {
@@ -59,13 +59,13 @@ func (oon *OfficerOrderNode) SetNext(node *OfficerOrderNode) { oon.next = node }
 type OfficerOrder struct {
 	head            *OfficerOrderNode // Ссылка на последнего дежуранта в очереди
 	tail            *OfficerOrderNode // Ссылка на первого дежуранта в очереди
-	officerCount    int32
-	maxOfficerCount int32
+	officerCount    uint32
+	maxOfficerCount uint32
 }
 
 // Создает пустой OfficerOrder
-func NewOfficerOrder(maxOfficerCount *int32) *OfficerOrder {
-	var maxCountValue int32
+func NewOfficerOrder(maxOfficerCount *uint32) *OfficerOrder {
+	var maxCountValue uint32
 	if maxOfficerCount == nil {
 		maxCountValue = DefaultMaxOfficerinOrderCount
 	} else {
@@ -100,13 +100,13 @@ func (oo *OfficerOrder) AddNewOfficer(officer *Officer) error {
 }
 
 // Возвращает текущее значение количиства дежурантов
-func (oo *OfficerOrder) OfficerCount() int32 { return oo.officerCount }
+func (oo *OfficerOrder) OfficerCount() uint32 { return oo.officerCount }
 
 // Возвращает текущее значение максимального количества дежурантов
-func (oo *OfficerOrder) MaxOfficerCount() int32 { return oo.maxOfficerCount }
+func (oo *OfficerOrder) MaxOfficerCount() uint32 { return oo.maxOfficerCount }
 
 // Возвращает количество доступных для заполнения слотов
-func (oo *OfficerOrder) AvailableSlots() int32 { return oo.maxOfficerCount - oo.officerCount }
+func (oo *OfficerOrder) AvailableSlots() uint32 { return oo.maxOfficerCount - oo.officerCount }
 
 // Проверяет пуста ли очередь
 func (oo *OfficerOrder) IsEmpty() bool { return oo.head == nil }

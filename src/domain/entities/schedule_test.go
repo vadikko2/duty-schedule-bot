@@ -65,7 +65,7 @@ func TestAddFirstDutyPositive(t *testing.T) {
 		durationDays: DefaultDutyDuration,
 	}
 
-	error := emptyDutySchedule.addToSchedule(&newDuty)
+	error := emptyDutySchedule.AddToSchedule(&newDuty)
 
 	if error != nil {
 		t.Errorf("Adding to Schedule with error %v", error)
@@ -98,9 +98,9 @@ func TestAddNewDutyPositive(t *testing.T) {
 		officer:      Officer{telegramLogin: "nkunov"},
 		durationDays: DefaultDutyDuration,
 	}
-	dutySchedule.addToSchedule(&duty1)
+	dutySchedule.AddToSchedule(&duty1)
 
-	error := dutySchedule.addToSchedule(&duty2)
+	error := dutySchedule.AddToSchedule(&duty2)
 
 	if error != nil {
 		t.Errorf("Adding to Schedule with error %v", error)
@@ -132,8 +132,8 @@ func TestGetDutyPositive(t *testing.T) {
 		officer:      Officer{telegramLogin: "nkunov"},
 		durationDays: DefaultDutyDuration,
 	}
-	dutySchedule.addToSchedule(&duty1)
-	dutySchedule.addToSchedule(&duty2)
+	dutySchedule.AddToSchedule(&duty1)
+	dutySchedule.AddToSchedule(&duty2)
 
 	nKunovDuty, error := dutySchedule.getDuty(time.Now().AddDate(0, 0, 8))
 

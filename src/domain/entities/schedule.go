@@ -40,6 +40,9 @@ func (se *ScheduleElement) DutyEnd() time.Time { return se.dutyEnd }
 // Возвращает сущность дежурства
 func (se *ScheduleElement) Duty() *Duty { return &se.duty }
 
+// Возвращает идентификатор дежурства
+func (se *ScheduleElement) ID() uuid.UUID { return se.uid }
+
 // Расписание дежурств
 type Schedule struct {
 	firstDutyStart *time.Time
@@ -70,7 +73,7 @@ func (s *Schedule) LastDutyEnd() (time.Time, error) {
 }
 
 // Добавляет новое дежурство в расписание
-func (s *Schedule) addToSchedule(duty *Duty) error {
+func (s *Schedule) AddToSchedule(duty *Duty) error {
 	// Если расписание пустое, ты мы дробавляем в него первый элемент
 	if s.elements == nil {
 		s.elements = list.New()
@@ -124,4 +127,20 @@ func (s *Schedule) DutyCount() int {
 	} else {
 		return s.elements.Len()
 	}
+}
+
+// Возвращает список элементов расписания дежурств
+func (s *Schedule) Elements() []*ScheduleElement {
+	if s.elements == nil {
+		return nil
+	}
+	var elements []*ScheduleElement
+	for element := s.elements.Front(); element != nil; element = element.Next() {
+		scheduleElement, ok := element.Value.(*ScheduleElement)
+		if !ok {
+			continue
+		}
+		elements = append(elements, scheduleElement)
+	}
+	return elements
 }

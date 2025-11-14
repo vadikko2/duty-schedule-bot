@@ -3,6 +3,7 @@ package entities
 import (
 	"container/list"
 	"errors"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -48,6 +49,7 @@ type Schedule struct {
 	firstDutyStart *time.Time
 	lastDutyEnd    *time.Time
 	elements       *list.List
+	mutex          sync.RWMutex
 }
 
 // Собирает расписание из списка ScheduleElement
@@ -61,11 +63,14 @@ func ConstructSchedule(elements *[]ScheduleElement) (*Schedule, error) {
 	for _, element := range *elements {
 		elementsList.PushBack(element)
 	}
-	return &Schedule{&firstScheduleElementDutyStart, &lastScheduleElementDutyEnd, elementsList}, nil
+	return &Schedule{&firstScheduleElementDutyStart, &lastScheduleElementDutyEnd, elementsList, sync.RWMutex{}}, nil
 }
 
 // Возвращает жату окончания последнего дежурства в расписании
 func (s *Schedule) LastDutyEnd() (time.Time, error) {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
 	if s.lastDutyEnd == nil {
 		return time.Time{}, errors.New("Schedule is empty")
 	}
@@ -74,6 +79,9 @@ func (s *Schedule) LastDutyEnd() (time.Time, error) {
 
 // Добавляет новое дежурство в расписание
 func (s *Schedule) AddToSchedule(duty *Duty) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
 	// Если расписание пустое, ты мы дробавляем в него первый элемент
 	if s.elements == nil {
 		s.elements = list.New()
@@ -91,29 +99,33 @@ func (s *Schedule) AddToSchedule(duty *Duty) error {
 	}
 
 	// Добавляем duty в конец расписания
-	lastEnd, error := s.LastDutyEnd()
-	if error != nil {
+	if s.lastDutyEnd == nil {
 		return errors.New("Schedule has no lastEnd")
 	}
-	newDutyElement := NewScheduleElement(
-		nil,
-		lastEnd,
-		duty,
-	)
+	newDutyElement := NewScheduleElement(nil, *s.lastDutyEnd, duty)
 	s.elements.PushBack(newDutyElement)
-	// Обновляем toDateTime
 	s.lastDutyEnd = &newDutyElement.dutyEnd
 	return nil
 }
 
 // Возвращает информацию о текущем дежурстве на заданную дату
 func (s *Schedule) getDuty(dateTime time.Time) (*Duty, error) {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
+	// Проверяем, что расписание не пустое
+	if s.elements == nil {
+		return nil, errors.New("Schedule is empty")
+	}
+
 	for element := s.elements.Front(); element != nil; element = element.Next() {
 		scheduleElement, ok := element.Value.(*ScheduleElement)
 		if !ok {
 			return nil, errors.New("Problem with processing element: incorrect type")
 		}
-		if dateTime.After(scheduleElement.DutyStart()) && dateTime.Before(scheduleElement.DutyEnd()) {
+		eq_or_after := (dateTime.Equal(scheduleElement.DutyStart()) || dateTime.After(scheduleElement.DutyStart()))
+		eq_or_before := (dateTime.Equal(scheduleElement.DutyEnd()) || dateTime.Before(scheduleElement.DutyEnd()))
+		if eq_or_after && eq_or_before {
 			return scheduleElement.Duty(), nil
 		}
 	}
@@ -122,6 +134,9 @@ func (s *Schedule) getDuty(dateTime time.Time) (*Duty, error) {
 
 // Возвращает количество дежурств в расписании за заданный период
 func (s *Schedule) DutyCount() int {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
 	if s.elements == nil {
 		return 0
 	} else {

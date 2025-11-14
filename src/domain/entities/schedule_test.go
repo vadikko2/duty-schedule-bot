@@ -71,13 +71,13 @@ func TestAddFirstDutyPositive(t *testing.T) {
 		t.Errorf("Adding to Schedule with error %v", error)
 	}
 	if emptyDutySchedule.elements == nil {
-		t.Errorf("Schedule is empty after add new duty %v", emptyDutySchedule)
+		t.Errorf("Schedule is empty after add new duty")
 	}
 	if emptyDutySchedule.firstDutyStart == nil {
-		t.Errorf("Schedule has no fromDateTime after add new duty %v", emptyDutySchedule)
+		t.Errorf("Schedule has no fromDateTime after add new duty")
 	}
 	if emptyDutySchedule.lastDutyEnd == nil {
-		t.Errorf("Schedule has no fromDateTime after add new duty %v", emptyDutySchedule)
+		t.Errorf("Schedule has no fromDateTime after add new duty")
 	}
 	if emptyDutySchedule.elements.Len() != 1 {
 		t.Errorf("Schedule has to has 1 elements, but has %d", emptyDutySchedule.elements.Len())
@@ -106,13 +106,13 @@ func TestAddNewDutyPositive(t *testing.T) {
 		t.Errorf("Adding to Schedule with error %v", error)
 	}
 	if dutySchedule.elements == nil {
-		t.Errorf("Schedule is empty after add new duty %v", dutySchedule)
+		t.Errorf("Schedule is empty after add new duty")
 	}
 	if dutySchedule.firstDutyStart == nil {
-		t.Errorf("Schedule has no fromDateTime after add new duty %v", dutySchedule)
+		t.Errorf("Schedule has no fromDateTime after add new duty")
 	}
 	if dutySchedule.lastDutyEnd == nil {
-		t.Errorf("Schedule has no fromDateTime after add new duty %v", dutySchedule)
+		t.Errorf("Schedule has no fromDateTime after add new duty")
 	}
 	if dutySchedule.elements.Len() != 2 {
 		t.Errorf("Schedule has to has 2 elements, but has %d", dutySchedule.elements.Len())
